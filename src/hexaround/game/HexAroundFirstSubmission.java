@@ -1,6 +1,7 @@
 package hexaround.game;
 
 import hexaround.required.*;
+import hexaround.board.*;
 
 public class HexAroundFirstSubmission implements IHexAround1{
 
