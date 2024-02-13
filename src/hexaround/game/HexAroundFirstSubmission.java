@@ -1,14 +1,45 @@
 package hexaround.game;
 
+import hexaround.config.CreatureDefinition;
+import hexaround.config.PlayerConfiguration;
 import hexaround.game.board.*;
-import hexaround.game.entities.creature.CreatureName;
+import hexaround.game.entities.creature.*;
 import hexaround.game.entities.creature.CreatureProperty;
 import hexaround.required.*;
 
+import java.util.*;
+
 public class HexAroundFirstSubmission implements IHexAround1 {
 
-private Board board;
 
+    // builder class
+    public static class Builder {
+        private HexAroundFirstSubmission gameManager ;
+
+        public Builder() {
+            gameManager  = new HexAroundFirstSubmission();
+        }
+
+        public Builder withCreatureDefinitions(Collection<CreatureDefinition> creatureDefinitions) {
+            // Logic to apply creature definitions
+            creatureDefinitions.forEach(creatureDefinition -> {
+//                System.out.println(creatureDefinition.name() + " " + creatureDefinition.maxDistance() + " " + creatureDefinition.properties());
+            });
+            return this;
+        }
+
+        public Builder withPlayerConfigurations(Collection<PlayerConfiguration> playerConfigurations) {
+            playerConfigurations.forEach(playerConfiguration -> {
+                System.out.println(playerConfiguration.Player() + " " + playerConfiguration.creatures());
+            });
+            return this;
+        }
+
+        public HexAroundFirstSubmission build() {
+            return gameManager;
+        }
+    }
+    private final Board board;
 
     /**
      * This is the default constructor, and the only constructor
