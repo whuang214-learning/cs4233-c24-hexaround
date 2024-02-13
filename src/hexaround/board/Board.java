@@ -5,12 +5,18 @@ import java.util.*;
 
 
 public class Board {
-    private final Map<Coordinate, CreatureName> hexes = new HashMap<>();
+    private Map<Coordinate, CreatureName> hexes;
 
-    public Board() {}
+    public Board() {
+        hexes = new HashMap<>();
+    }
 
-    public void placeCreature(int x, int y, CreatureName creature) {
-        hexes.put(new Coordinate(x, y), creature);
+    public void placeCreature(Coordinate coordinate, CreatureName creatureName) {
+        hexes.put(coordinate, creatureName);
+    }
+
+    public CreatureName getCreatureAt(Coordinate coordinate) {
+        return hexes.get(coordinate);
     }
 
 }

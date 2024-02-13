@@ -3,7 +3,10 @@ package hexaround.game;
 import hexaround.required.*;
 import hexaround.board.*;
 
-public class HexAroundFirstSubmission implements IHexAround1{
+public class HexAroundFirstSubmission implements IHexAround1 {
+
+private Board board;
+
 
     /**
      * This is the default constructor, and the only constructor
@@ -14,6 +17,7 @@ public class HexAroundFirstSubmission implements IHexAround1{
      */
     public HexAroundFirstSubmission() {
         // Nothing to do.
+        board = new Board();
     }
 
     /**
@@ -26,7 +30,7 @@ public class HexAroundFirstSubmission implements IHexAround1{
      */
     @Override
     public CreatureName getCreatureAt(int x, int y) {
-        return null;
+        return board.getCreatureAt(new Coordinate(x, y));
     }
 
     /**
@@ -53,7 +57,7 @@ public class HexAroundFirstSubmission implements IHexAround1{
      */
     @Override
     public boolean isOccupied(int x, int y) {
-        return false;
+        return board.getCreatureAt(new Coordinate(x, y)) != null;
     }
 
     /**
@@ -87,6 +91,7 @@ public class HexAroundFirstSubmission implements IHexAround1{
      */
     @Override
     public MoveResponse placeCreature(CreatureName creature, int x, int y) {
+        board.placeCreature(new Coordinate(x, y), creature);
         return null;
     }
 
