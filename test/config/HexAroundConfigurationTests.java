@@ -16,10 +16,14 @@
 package config;
 
 import hexaround.config.*;
+import hexaround.game.HexAroundFirstSubmission;
+import hexaround.game.HexAroundGameBuilder;
+import hexaround.game.IHexAround1;
 import org.junit.jupiter.api.*;
 
 import java.io.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HexAroundConfigurationTests {
@@ -31,4 +35,6 @@ public class HexAroundConfigurationTests {
         assertTrue(true);
         System.out.println(gc.toString());
     }
+
+
 }

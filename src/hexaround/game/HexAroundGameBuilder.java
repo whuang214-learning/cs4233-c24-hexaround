@@ -27,7 +27,7 @@ public class HexAroundGameBuilder {
         HexAroundConfigurationMaker configurationMaker =
             new HexAroundConfigurationMaker(configurationFile);
         GameConfiguration configuration = configurationMaker.makeConfiguration();
-        IHexAround1 gameManager = new HexAroundFirstSubmission.Builder()
+        HexAroundFirstSubmission gameManager = new HexAroundFirstSubmission.Builder()
             .withCreatureDefinitions(configuration.creatures())
             .withPlayerConfigurations(configuration.players())
             .build();
