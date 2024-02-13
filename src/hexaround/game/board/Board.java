@@ -17,7 +17,7 @@ public class Board {
             return new MoveResponse(MoveResult.MOVE_ERROR, "Hex is already occupied");
         }
         hexes.put(coordinate, creatureName);
-        return new MoveResponse(MoveResult.OK, "Creature placed");
+        return new MoveResponse(MoveResult.OK);
     }
 
     public CreatureName getCreatureAt(Coordinate coordinate) {

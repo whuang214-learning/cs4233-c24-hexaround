@@ -15,9 +15,6 @@ public class CreatureFactory {
 
     public Creature createCreature(CreatureName name) {
         CreatureDefinition def = creatureDefinitions.get(name);
-        if (def == null) {
-            throw new IllegalArgumentException("No definition for creature: " + name);
-        }
         return new Creature(name, def.maxDistance(), def.properties());
     }
 

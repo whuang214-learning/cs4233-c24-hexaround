@@ -2,6 +2,7 @@ package hexaround;
 
 import hexaround.game.*;
 import hexaround.game.board.MoveResult;
+import hexaround.game.entities.creature.CreatureProperty;
 import org.junit.jupiter.api.*;
 
 import javax.swing.*;
@@ -42,6 +43,19 @@ public class Submission1Test {
         gameManager.placeCreature(GRASSHOPPER, 5, 42);
         assertTrue(gameManager.isOccupied(5, 42));
 
+    }
+
+    // check the hasProperty method
+    @Test
+    void testHasProperty() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
+
+
+
+        gameManager.placeCreature(BUTTERFLY, 5, 42);
+        assertTrue(gameManager.hasProperty(5, 42, CreatureProperty.QUEEN));
+        assertTrue(gameManager.hasProperty(5, 42, CreatureProperty.WALKING));
     }
 
 

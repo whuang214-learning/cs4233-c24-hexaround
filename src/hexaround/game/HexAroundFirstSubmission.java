@@ -4,7 +4,7 @@ import hexaround.config.CreatureDefinition;
 import hexaround.config.PlayerConfiguration;
 import hexaround.game.board.*;
 import hexaround.game.entities.creature.*;
-import hexaround.game.entities.player.PlayerName;
+import hexaround.game.entities.player.*;
 
 import java.util.*;
 
@@ -46,9 +46,9 @@ public class HexAroundFirstSubmission implements IHexAround1 {
             return gameManager;
         }
     }
-    protected final Board board;
-    protected List<Creature> allCreatures;
-    protected Map<PlayerName, Map<CreatureName, Integer>> players;
+    private final Board board;
+    private List<Creature> allCreatures;
+    private List<Player> players;
 
     /**
      * This is the default constructor, and the only constructor
@@ -57,11 +57,11 @@ public class HexAroundFirstSubmission implements IHexAround1 {
      * necessary for any instance variables that you create and
      * will be filled in by the builder.
      */
-    protected HexAroundFirstSubmission() {
+    private HexAroundFirstSubmission() {
         // Nothing to do.
         board = new Board();
         allCreatures = new ArrayList<>();
-        players = new HashMap<>();
+        players = new ArrayList<>();
     }
 
     /**
@@ -89,7 +89,10 @@ public class HexAroundFirstSubmission implements IHexAround1 {
      */
     @Override
     public boolean hasProperty(int x, int y, CreatureProperty property) {
-        return false;
+        CreatureName currentCreatureAtHex = board.getCreatureAt(new Coordinate(x, y));
+        return allCreatures.stream()
+                .filter(creature -> creature.name().equals(currentCreatureAtHex))
+                .anyMatch(creature -> creature.properties().contains(property));
     }
 
     /**
@@ -159,7 +162,8 @@ public class HexAroundFirstSubmission implements IHexAround1 {
 
     // add player to the map
     private void addPlayer(PlayerName playerName, Map<CreatureName, Integer> creatures) {
-        players.put(playerName, creatures);
+        // add player record into the players list
+        players.add(new Player(playerName, creatures));
     }
 
 }
