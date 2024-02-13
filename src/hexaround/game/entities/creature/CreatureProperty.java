@@ -9,7 +9,7 @@
  *  2) You may not remove this copyright, even if you have modified this file.
  */
 
-package hexaround.required;
+package hexaround.game.entities.creature;
 
 public enum CreatureProperty {
     QUEEN("Butterfly"),

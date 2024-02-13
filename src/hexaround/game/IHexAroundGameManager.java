@@ -15,6 +15,7 @@
 
 package hexaround.game;
 
+import hexaround.game.entities.creature.CreatureName;
 import hexaround.required.*;
 
 /**

@@ -1,7 +1,9 @@
 package hexaround.game;
 
+import hexaround.game.board.*;
+import hexaround.game.entities.creature.CreatureName;
+import hexaround.game.entities.creature.CreatureProperty;
 import hexaround.required.*;
-import hexaround.board.*;
 
 public class HexAroundFirstSubmission implements IHexAround1 {
 
@@ -71,7 +73,7 @@ private Board board;
      * @param y1
      * @param x2
      * @param y2
-     * @return itrue if the distance between the two hexes is less
+     * @return itrue if the distance between  the two hexes is less
      * than or equal to the maximum distance property for the piece
      * at (x1, y1). Return false otherwise.
      */
@@ -91,8 +93,7 @@ private Board board;
      */
     @Override
     public MoveResponse placeCreature(CreatureName creature, int x, int y) {
-        board.placeCreature(new Coordinate(x, y), creature);
-        return null;
+        return board.placeCreature(new Coordinate(x, y), creature);
     }
 
     /**

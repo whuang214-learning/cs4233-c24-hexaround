@@ -1,6 +1,7 @@
 package hexaround.game;
 
-import hexaround.required.*;
+import hexaround.game.entities.creature.CreatureName;
+import hexaround.game.entities.creature.CreatureProperty;
 
 public interface IHexAround1 extends IHexAroundGameManager{
     CreatureName getCreatureAt(int x, int y);

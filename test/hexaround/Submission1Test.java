@@ -1,12 +1,12 @@
 package hexaround;
 
-import hexaround.config.*;
 import hexaround.game.*;
+import hexaround.required.*;
 import org.junit.jupiter.api.*;
 
 import java.io.*;
 
-import static hexaround.required.CreatureName.*;
+import static hexaround.game.entities.creature.CreatureName.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class Submission1Test {
@@ -20,14 +20,21 @@ public class Submission1Test {
 
     // checks if the creature is placed at the given coordinates
     @Test
-    void firstTest() throws IOException {
+    void testPlaceCreature() {
+        assertEquals(gameManager.placeCreature(GRASSHOPPER, 5, 42).moveResult(), MoveResult.OK);
+        assertEquals(GRASSHOPPER, gameManager.getCreatureAt(5, 42));
+    }
+
+    // checks if moveResult is MOVE_ERROR when the creature is placed at the same coordinates
+    @Test
+    void testInvalidCreaturePlacement() {
         gameManager.placeCreature(GRASSHOPPER, 5, 42);
-        assertEquals(GRASSHOPPER,gameManager.getCreatureAt(5, 42));
+        assertEquals(gameManager.placeCreature(GRASSHOPPER, 5, 42).moveResult(), MoveResult.MOVE_ERROR);
     }
 
     // checks the isOccupied method
     @Test
-    void isOccupiedTest() throws IOException {
+    void testIsOccupied() {
         gameManager.placeCreature(GRASSHOPPER, 5, 42);
         assertTrue(gameManager.isOccupied(5, 42));
     }
