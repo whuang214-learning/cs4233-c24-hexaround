@@ -1,7 +1,7 @@
 package hexaround;
 
 import hexaround.game.*;
-import hexaround.required.*;
+import hexaround.game.board.MoveResult;
 import org.junit.jupiter.api.*;
 
 import java.io.*;

@@ -4,8 +4,6 @@ import hexaround.config.CreatureDefinition;
 import hexaround.config.PlayerConfiguration;
 import hexaround.game.board.*;
 import hexaround.game.entities.creature.*;
-import hexaround.game.entities.creature.CreatureProperty;
-import hexaround.required.*;
 
 import java.util.*;
 
@@ -21,16 +19,16 @@ public class HexAroundFirstSubmission implements IHexAround1 {
         }
 
         public Builder withCreatureDefinitions(Collection<CreatureDefinition> creatureDefinitions) {
-            // Logic to apply creature definitions
             creatureDefinitions.forEach(creatureDefinition -> {
-//                System.out.println(creatureDefinition.name() + " " + creatureDefinition.maxDistance() + " " + creatureDefinition.properties());
+                // add creature to the list
+                gameManager.addCreature(new Creature(creatureDefinition.name(), creatureDefinition.maxDistance(), creatureDefinition.properties()));
             });
             return this;
         }
 
         public Builder withPlayerConfigurations(Collection<PlayerConfiguration> playerConfigurations) {
             playerConfigurations.forEach(playerConfiguration -> {
-                System.out.println(playerConfiguration.Player() + " " + playerConfiguration.creatures());
+                // logic to apply player configurations
             });
             return this;
         }
@@ -40,6 +38,8 @@ public class HexAroundFirstSubmission implements IHexAround1 {
         }
     }
     private final Board board;
+    private List<Creature> allCreatures;
+
 
     /**
      * This is the default constructor, and the only constructor
@@ -48,9 +48,10 @@ public class HexAroundFirstSubmission implements IHexAround1 {
      * necessary for any instance variables that you create and
      * will be filled in by the builder.
      */
-    public HexAroundFirstSubmission() {
+    private HexAroundFirstSubmission() {
         // Nothing to do.
         board = new Board();
+        allCreatures = new ArrayList<>();
     }
 
     /**
@@ -140,4 +141,17 @@ public class HexAroundFirstSubmission implements IHexAround1 {
     public MoveResponse moveCreature(CreatureName creature, int fromX, int fromY, int toX, int toY) {
         return null;
     }
+
+    // add creature to the list
+    private void addCreature(Creature creature) {
+        allCreatures.add(creature);
+    }
+
+    // get all creatures
+    public List<Creature> getAllCreatures() {
+        return allCreatures;
+    }
+
+
+
 }

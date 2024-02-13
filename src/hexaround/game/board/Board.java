@@ -1,6 +1,5 @@
 package hexaround.game.board;
 import hexaround.game.entities.creature.CreatureName;
-import hexaround.required.*;
 
 import java.util.*;
 
