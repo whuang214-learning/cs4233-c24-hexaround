@@ -51,12 +51,27 @@ public class Submission1Test {
         String hgcFile = "testConfigurations/FirstConfiguration.hgc";
         IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
 
-
-
         gameManager.placeCreature(BUTTERFLY, 5, 42);
         assertTrue(gameManager.hasProperty(5, 42, CreatureProperty.QUEEN));
         assertTrue(gameManager.hasProperty(5, 42, CreatureProperty.WALKING));
+        assertFalse(gameManager.hasProperty(5, 42, CreatureProperty.JUMPING));
     }
+
+    // test the can reach method
+    @Test
+    void testCanReach() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
+
+        gameManager.placeCreature(BUTTERFLY, 5, 42);
+        gameManager.placeCreature(BUTTERFLY, 5, 43);
+        assertTrue(gameManager.canReach(5, 42, 5, 43));
+        assertFalse(gameManager.canReach(5, 42, 5, 44));
+    }
+
+
+
+
 
 
 }
