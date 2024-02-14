@@ -24,6 +24,16 @@ public class Submission1Test {
         assertEquals(GRASSHOPPER, gameManager.getCreatureAt(5, 42));
     }
 
+    // placeCreature test number 2
+    @Test
+    void testPlaceCreatureTwo() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
+
+        assertEquals(gameManager.placeCreature(BUTTERFLY, 5, 5).moveResult(), MoveResult.OK);
+        assertEquals(gameManager.placeCreature(GRASSHOPPER, 5, 6).moveResult(), MoveResult.OK);
+    }
+
     // checks if moveResult is MOVE_ERROR when the creature is placed at the same coordinates
     @Test
     void testInvalidCreaturePlacement() throws IOException {
