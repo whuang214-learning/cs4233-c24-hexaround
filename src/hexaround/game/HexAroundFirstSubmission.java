@@ -10,42 +10,62 @@ import java.util.*;
 
 public class HexAroundFirstSubmission implements IHexAround1 {
 
+    /**
+ * This is a Builder class for HexAroundFirstSubmission.
+ * It allows for the creation of a HexAroundFirstSubmission object using the Builder pattern.
+ * This pattern provides a flexible and readable way to construct complex objects.
+ */
+public static class Builder {
+    // The HexAroundFirstSubmission object that this builder will eventually return
+    private HexAroundFirstSubmission gameManager ;
 
-    // builder class
-    public static class Builder {
-        private HexAroundFirstSubmission gameManager ;
-
-        public Builder() {
-            gameManager  = new HexAroundFirstSubmission();
-        }
-
-        public Builder withCreatureDefinitions(Collection<CreatureDefinition> creatureDefinitions) {
-
-            // instantiate CreatureFactory and pass creatureDefinitions
-            CreatureFactory creatureFactory = new CreatureFactory(creatureDefinitions);
-
-            // get all creatures and add them to the game manager
-            creatureDefinitions.forEach(creatureDefinition -> {
-                gameManager.addCreature(creatureFactory.createCreature(creatureDefinition.name()));
-            });
-
-            return this;
-        }
-
-        public Builder withPlayerConfigurations(Collection<PlayerConfiguration> playerConfigurations) {
-
-            playerConfigurations.forEach(playerConfiguration -> {
-                // update the players map with the player name and the list of creatures
-                gameManager.addPlayer(playerConfiguration.Player(), playerConfiguration.creatures());
-            });
-
-            return this;
-        }
-
-        public HexAroundFirstSubmission build() {
-            return gameManager;
-        }
+    /**
+     * The Builder constructor initializes a new HexAroundFirstSubmission object.
+     */
+    public Builder() {
+        gameManager  = new HexAroundFirstSubmission();
     }
+
+    /**
+     * This method allows for the addition of creature definitions to the HexAroundFirstSubmission object.
+     * It creates a CreatureFactory with the provided definitions and adds the created creatures to the game manager.
+     * @param creatureDefinitions A collection of creature definitions to be added to the game manager.
+     * @return The Builder object, allowing for method chaining.
+     */
+    public Builder withCreatureDefinitions(Collection<CreatureDefinition> creatureDefinitions) {
+
+        CreatureFactory creatureFactory = new CreatureFactory(creatureDefinitions);
+
+        creatureDefinitions.forEach(creatureDefinition -> {
+            gameManager.addCreature(creatureFactory.createCreature(creatureDefinition.name()));
+        });
+
+        return this;
+    }
+
+    /**
+     * This method allows for the addition of player configurations to the HexAroundFirstSubmission object.
+     * It updates the players map with the player name and the list of creatures.
+     * @param playerConfigurations A collection of player configurations to be added to the game manager.
+     * @return The Builder object, allowing for method chaining.
+     */
+    public Builder withPlayerConfigurations(Collection<PlayerConfiguration> playerConfigurations) {
+
+        playerConfigurations.forEach(playerConfiguration -> {
+            gameManager.addPlayer(playerConfiguration.Player(), playerConfiguration.creatures());
+        });
+
+        return this;
+    }
+
+    /**
+     * This method completes the building process and returns the constructed HexAroundFirstSubmission object.
+     * @return The constructed HexAroundFirstSubmission object.
+     */
+    public HexAroundFirstSubmission build() {
+        return gameManager;
+    }
+}
     private final Board board;
     private List<Creature> allCreatures;
     private List<Player> players;
