@@ -64,9 +64,19 @@ public class Submission1Test {
         IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
 
         gameManager.placeCreature(BUTTERFLY, 5, 42);
-        gameManager.placeCreature(BUTTERFLY, 5, 43);
         assertTrue(gameManager.canReach(5, 42, 5, 43));
         assertFalse(gameManager.canReach(5, 42, 5, 44));
+    }
+
+    // additional test for canReach
+    @Test
+    void testCanReachTwo() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
+
+        gameManager.placeCreature(GRASSHOPPER, 0, 0);
+        assertTrue(gameManager.canReach(0, 0, 0, 3));
+        assertTrue(gameManager.canReach(0, 0, 1, 2));
     }
 
 

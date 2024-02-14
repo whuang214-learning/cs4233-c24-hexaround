@@ -124,7 +124,18 @@ public class HexAroundFirstSubmission implements IHexAround1 {
      */
     @Override
     public boolean canReach(int x1, int y1, int x2, int y2) {
-        return false;
+        // get the creature at the first hex (x1, y1)
+        // check its max distance property
+        // calculate the distance between the two hexes
+        // return true if the distance is less than or equal to the max distance
+
+        CreatureName creatureAtFirstHex = board.getCreatureAt(new Coordinate(x1, y1));
+        Creature creature = allCreatures.stream()
+                .filter(c -> c.name().equals(creatureAtFirstHex))
+                .findFirst()
+                .orElse(null);
+        int distance = distanceBetweenHexes(x1, y1, x2, y2);
+        return distance <= creature.maxDistance();
     }
 
     /**
@@ -164,6 +175,24 @@ public class HexAroundFirstSubmission implements IHexAround1 {
     private void addPlayer(PlayerName playerName, Map<CreatureName, Integer> creatures) {
         // add player record into the players list
         players.add(new Player(playerName, creatures));
+    }
+
+    // get the distance between two hexes
+    // https://stackoverflow.com/questions/14491444/calculating-distance-on-a-hexagon-grid
+    private int distanceBetweenHexes(int col1, int row1, int col2, int row2) {
+        // calculate the distance between the two hexes
+        // return the distance
+
+        int x1 = col1;
+        int z1 = row1 - (col1 - (col1 & 1)) / 2;
+        int y1 = -x1 - z1;
+
+        int x2 = col2;
+        int z2 = row2 - (col2 - (col2 & 1)) / 2;
+        int y2 = -x2 - z2;
+
+        // Calculate distance in cube coordinates
+        return (Math.abs(x1 - x2) + Math.abs(y1 - y2) + Math.abs(z1 - z2)) / 2;
     }
 
 }
