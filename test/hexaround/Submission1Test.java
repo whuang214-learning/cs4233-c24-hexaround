@@ -1,7 +1,9 @@
 package hexaround;
 
 import hexaround.game.*;
+import hexaround.game.board.MoveResponse;
 import hexaround.game.board.MoveResult;
+import hexaround.game.entities.creature.CreatureName;
 import hexaround.game.entities.creature.CreatureProperty;
 import org.junit.jupiter.api.*;
 
@@ -20,7 +22,10 @@ public class Submission1Test {
         String hgcFile = "testConfigurations/FirstConfiguration.hgc";
         IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
 
-        assertEquals(gameManager.placeCreature(GRASSHOPPER, 5, 42).moveResult(), MoveResult.OK);
+        MoveResponse response = gameManager.placeCreature(GRASSHOPPER, 5, 42);
+
+        assertEquals(response.moveResult(), MoveResult.OK);
+        assertEquals(response.message(), "Legal move");
         assertEquals(GRASSHOPPER, gameManager.getCreatureAt(5, 42));
     }
 
@@ -30,8 +35,13 @@ public class Submission1Test {
         String hgcFile = "testConfigurations/FirstConfiguration.hgc";
         IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
 
-        assertEquals(gameManager.placeCreature(BUTTERFLY, 5, 5).moveResult(), MoveResult.OK);
-        assertEquals(gameManager.placeCreature(GRASSHOPPER, 5, 6).moveResult(), MoveResult.OK);
+        MoveResponse responseOne = gameManager.placeCreature(BUTTERFLY, 5, 5);
+        MoveResponse responseTwo = gameManager.placeCreature(GRASSHOPPER, 5, 6);
+
+        assertEquals(responseOne.moveResult(), MoveResult.OK);
+        assertEquals(responseOne.message(), "Legal move");
+        assertEquals(responseTwo.moveResult(), MoveResult.OK);
+        assertEquals(responseTwo.message(), "Legal move");
     }
 
     // checks if moveResult is MOVE_ERROR when the creature is placed at the same coordinates
@@ -87,6 +97,18 @@ public class Submission1Test {
         gameManager.placeCreature(GRASSHOPPER, 0, 0);
         assertTrue(gameManager.canReach(0, 0, 0, 3));
         assertTrue(gameManager.canReach(0, 0, 1, 2));
+    }
+
+    // test moveCreature method
+    @Test
+    void testMoveCreature() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
+
+        gameManager.placeCreature(GRASSHOPPER, 5, 42);
+        gameManager.placeCreature(BUTTERFLY, 5, 43);
+        assertEquals(gameManager.moveCreature(GRASSHOPPER, 5, 42, 5, 43).moveResult(), MoveResult.OK);
+        assertEquals(GRASSHOPPER, gameManager.getCreatureAt(5, 43));
     }
 
 

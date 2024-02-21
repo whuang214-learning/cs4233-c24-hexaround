@@ -183,6 +183,10 @@ public static class Builder {
      */
     @Override
     public MoveResponse moveCreature(CreatureName creature, int fromX, int fromY, int toX, int toY) {
+        // check if move satisfies connectedness requirements
+        // check if distance between the two hexes is less than or equal to the max distance
+        // if all checks pass, move the creature to the new hex
+        // return a response
         return null;
     }
 

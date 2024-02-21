@@ -29,7 +29,7 @@ public MoveResponse placeCreature(Coordinate coordinate, CreatureName creatureNa
         return new MoveResponse(MoveResult.MOVE_ERROR, "Hex is already occupied");
     }
     hexes.put(coordinate, creatureName);
-    return new MoveResponse(MoveResult.OK);
+    return new MoveResponse(MoveResult.OK, "Legal move");
 }
 
 /**
@@ -41,5 +41,59 @@ public MoveResponse placeCreature(Coordinate coordinate, CreatureName creatureNa
 public CreatureName getCreatureAt(Coordinate coordinate) {
     return hexes.get(coordinate);
 }
+
+/**
+ * This method checks if a specified coordinate's adjacent hexes are occupied by creatures.
+ * @param coordinate The coordinate to check.
+ * @return True if the coordinate is occupied, false otherwise.
+ */
+public boolean hasAdjacentCreatures(Coordinate coordinate) {
+    List<Coordinate> adjacentCoordinates = getAdjacentCoordinates(coordinate);
+    for (Coordinate adjacentCoordinate : adjacentCoordinates) {
+        if (getCreatureAt(adjacentCoordinate) != null) {
+            return true;
+        }
+    }
+    return false;
+}
+
+private List<Coordinate> getAdjacentCoordinates(Coordinate coordinate) {
+    List<Coordinate> adjacentCoordinates = new ArrayList<>();
+    int[][] directions = {{0, 1}, {1, 0}, {-1, 1}, {1, -1}, {0, -1}, {-1, 0}};
+
+    for (int[] direction : directions) {
+        Coordinate adjacentCoordinate = new Coordinate(coordinate.x() + direction[0], coordinate.y() + direction[1]);
+        if (hexes.get(adjacentCoordinate) != null) {
+            adjacentCoordinates.add(adjacentCoordinate);
+        }
+    }
+
+    return adjacentCoordinates;
+}
+
+private CreatureName getNorthAjacency(Coordinate coordinate) {
+    return hexes.get(new Coordinate(coordinate.x(), coordinate.y() + 1));
+}
+
+private CreatureName checkNorthEastAjacency(Coordinate coordinate) {
+    return hexes.get(new Coordinate(coordinate.x() + 1, coordinate.y()));
+}
+private CreatureName checkNorthWestAjacency(Coordinate coordinate) {
+    return hexes.get(new Coordinate(coordinate.x() - 1, coordinate.y() + 1));
+}
+
+private CreatureName checkSouthEastAjacency(Coordinate coordinate) {
+    return hexes.get(new Coordinate(coordinate.x() + 1, coordinate.y() - 1));
+}
+
+private CreatureName checkSouthAjacency(Coordinate coordinate) {
+    return hexes.get(new Coordinate(coordinate.x(), coordinate.y() - 1));
+}
+
+private CreatureName checkSouthWestAjacency(Coordinate coordinate) {
+    return hexes.get(new Coordinate(coordinate.x() - 1, coordinate.y()));
+}
+
+
 
 }
