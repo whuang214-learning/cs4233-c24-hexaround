@@ -43,18 +43,59 @@ public CreatureName getCreatureAt(Coordinate coordinate) {
 }
 
 /**
- * This method checks if a specified coordinate's adjacent hexes are occupied by creatures.
- * @param coordinate The coordinate to check.
- * @return True if the coordinate is occupied, false otherwise.
+ * This method moves a creature from one coordinate to another on the board.
+ * If the destination coordinate is already occupied, it returns a MoveResponse with a MOVE_ERROR result and a message indicating that the hex is already occupied.
+ * If the move would result in a disconnected colony, it returns a MoveResponse with a MOVE_ERROR result and a message indicating that the colony is not connected.
+ * If the move is successful, it updates the board and returns a MoveResponse with an OK result.
+ * @param from The coordinate from which the creature is to be moved.
+ * @param to The coordinate to which the creature is to be moved.
+ * @return A MoveResponse indicating the result of the move and an optional message.
  */
-public boolean hasAdjacentCreatures(Coordinate coordinate) {
-    List<Coordinate> adjacentCoordinates = getAdjacentCoordinates(coordinate);
-    for (Coordinate adjacentCoordinate : adjacentCoordinates) {
-        if (getCreatureAt(adjacentCoordinate) != null) {
-            return true;
+public MoveResponse moveCreature(Coordinate from, Coordinate to) {
+    // check if there is no creature at the to coordinate
+    // make a copy of the board
+    // move the creature from the from coordinate to the to coordinate
+    // run a DFS method to count all creatures that are connected to the to coordinate
+    // if the count is less than the number of creatures on the board, return a MOVE_ERROR response
+
+    if (getCreatureAt(to) != null) {
+        return new MoveResponse(MoveResult.MOVE_ERROR, "Hex is already occupied");
+    }
+    Map<Coordinate, CreatureName> newHexBoard = new HashMap<>(hexes);
+    CreatureName creatureToMove = newHexBoard.remove(from);
+    newHexBoard.put(to, creatureToMove);
+
+    // go through the hexes and count the number of creatures where value != null
+    int originalHexesCount = 0;
+    for (Map.Entry<Coordinate, CreatureName> entry : hexes.entrySet()) {
+        if (entry.getValue() != null) {
+            originalHexesCount++;
         }
     }
-    return false;
+
+    if (countConnectedCreatures(to, newHexBoard) < originalHexesCount) {
+        return new MoveResponse(MoveResult.MOVE_ERROR, "Colony is not connected, try again");
+    }
+
+    hexes = newHexBoard;
+    return new MoveResponse(MoveResult.OK, "Legal move");
+}
+
+private int countConnectedCreatures(Coordinate coordinate, Map<Coordinate, CreatureName> hexes) {
+    Set<Coordinate> visited = new HashSet<>();
+    return dfs(coordinate, hexes, visited);
+}
+
+private int dfs(Coordinate coordinate, Map<Coordinate, CreatureName> hexes, Set<Coordinate> visited) {
+    visited.add(coordinate);
+    int count = 1;
+    List<Coordinate> adjacentCoordinates = getAdjacentCoordinates(coordinate);
+    for (Coordinate adjacentCoordinate : adjacentCoordinates) {
+        if (hexes.get(adjacentCoordinate) != null && !visited.contains(adjacentCoordinate)) {
+            count += dfs(adjacentCoordinate, hexes, visited);
+        }
+    }
+    return count;
 }
 
 private List<Coordinate> getAdjacentCoordinates(Coordinate coordinate) {
@@ -70,30 +111,4 @@ private List<Coordinate> getAdjacentCoordinates(Coordinate coordinate) {
 
     return adjacentCoordinates;
 }
-
-private CreatureName getNorthAjacency(Coordinate coordinate) {
-    return hexes.get(new Coordinate(coordinate.x(), coordinate.y() + 1));
-}
-
-private CreatureName checkNorthEastAjacency(Coordinate coordinate) {
-    return hexes.get(new Coordinate(coordinate.x() + 1, coordinate.y()));
-}
-private CreatureName checkNorthWestAjacency(Coordinate coordinate) {
-    return hexes.get(new Coordinate(coordinate.x() - 1, coordinate.y() + 1));
-}
-
-private CreatureName checkSouthEastAjacency(Coordinate coordinate) {
-    return hexes.get(new Coordinate(coordinate.x() + 1, coordinate.y() - 1));
-}
-
-private CreatureName checkSouthAjacency(Coordinate coordinate) {
-    return hexes.get(new Coordinate(coordinate.x(), coordinate.y() - 1));
-}
-
-private CreatureName checkSouthWestAjacency(Coordinate coordinate) {
-    return hexes.get(new Coordinate(coordinate.x() - 1, coordinate.y()));
-}
-
-
-
 }

@@ -105,13 +105,87 @@ public class Submission1Test {
         String hgcFile = "testConfigurations/FirstConfiguration.hgc";
         IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
 
-        gameManager.placeCreature(GRASSHOPPER, 5, 42);
-        gameManager.placeCreature(BUTTERFLY, 5, 43);
-        assertEquals(gameManager.moveCreature(GRASSHOPPER, 5, 42, 5, 43).moveResult(), MoveResult.OK);
-        assertEquals(GRASSHOPPER, gameManager.getCreatureAt(5, 43));
+        gameManager.placeCreature(GRASSHOPPER, 0, 1);
+        gameManager.placeCreature(BUTTERFLY, 0, 0);
+        MoveResponse afterMove = gameManager.moveCreature(GRASSHOPPER, 0, 1, 0, -1);
+        assertEquals(MoveResult.OK, afterMove.moveResult());
+        assertEquals(GRASSHOPPER, gameManager.getCreatureAt(0, -1));
     }
 
+    // testing for move creatures with more creatures
+    @Test
+    void testMoreMovingCreatureFail() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
 
+        gameManager.placeCreature(BUTTERFLY, 0, 0);
+        gameManager.placeCreature(GRASSHOPPER, 0, 1);
+        gameManager.placeCreature(GRASSHOPPER, 1, 0);
+        gameManager.placeCreature(GRASSHOPPER, -1, 1);
+        gameManager.placeCreature(GRASSHOPPER, 1, -1);
+        gameManager.placeCreature(GRASSHOPPER, 2, -2);
+
+        MoveResponse afterMove = gameManager.moveCreature(GRASSHOPPER, 1, -1, 1, 1);
+        assertEquals(MoveResult.MOVE_ERROR, afterMove.moveResult());
+        assertEquals(GRASSHOPPER, gameManager.getCreatureAt(1, -1));
+    }
+
+    // Positive test for moveCreature
+    @Test
+    void testMoreMovingCreatureSuccess() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
+
+        gameManager.placeCreature(BUTTERFLY, 0, 0);
+        gameManager.placeCreature(GRASSHOPPER, 0, 1);
+        gameManager.placeCreature(GRASSHOPPER, 1, 0);
+        gameManager.placeCreature(GRASSHOPPER, -1, 1);
+        gameManager.placeCreature(GRASSHOPPER, 1, -1);
+        gameManager.placeCreature(GRASSHOPPER, 2, -2);
+
+        MoveResponse afterMove = gameManager.moveCreature(GRASSHOPPER, 2, -2, 1, 1);
+        assertEquals(MoveResult.OK, afterMove.moveResult());
+        assertEquals(GRASSHOPPER, gameManager.getCreatureAt(1, 1));
+    }
+
+    @Test
+    void testMoveCreatureToOccupiedHex() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
+
+        gameManager.placeCreature(GRASSHOPPER, 0, 0);
+        gameManager.placeCreature(BUTTERFLY, 0, 1);
+        MoveResponse afterMove = gameManager.moveCreature(GRASSHOPPER, 0, 0, 0, 1);
+
+        assertEquals(MoveResult.MOVE_ERROR, afterMove.moveResult());
+        assertEquals(GRASSHOPPER, gameManager.getCreatureAt(0, 0));
+        assertEquals(BUTTERFLY, gameManager.getCreatureAt(0, 1));
+    }
+
+    @Test
+    void testMoveCreatureToNonAdjacentHex() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
+
+        gameManager.placeCreature(GRASSHOPPER, 0, 0);
+        MoveResponse afterMove = gameManager.moveCreature(GRASSHOPPER, 0, 0, 2, 2);
+
+        assertEquals(MoveResult.MOVE_ERROR, afterMove.moveResult());
+        assertEquals(GRASSHOPPER, gameManager.getCreatureAt(0, 0));
+        assertNull(gameManager.getCreatureAt(2, 2));
+    }
+
+    @Test
+    void testMoveCreatureWithoutPlacingFirst() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
+
+        MoveResponse afterMove = gameManager.moveCreature(GRASSHOPPER, 0, 0, 0, 1);
+
+        assertEquals(MoveResult.MOVE_ERROR, afterMove.moveResult());
+        assertNull(gameManager.getCreatureAt(0, 0));
+        assertNull(gameManager.getCreatureAt(0, 1));
+    }
 
 
 

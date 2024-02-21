@@ -183,11 +183,24 @@ public static class Builder {
      */
     @Override
     public MoveResponse moveCreature(CreatureName creature, int fromX, int fromY, int toX, int toY) {
-        // check if move satisfies connectedness requirements
         // check if distance between the two hexes is less than or equal to the max distance
+        // check if move satisfies connectedness requirements
         // if all checks pass, move the creature to the new hex
         // return a response
-        return null;
+
+        if (board.getCreatureAt(new Coordinate(fromX, fromY)) != creature) {
+            return new MoveResponse(MoveResult.MOVE_ERROR, "Wrong creature");
+        }
+
+        if (distanceBetweenHexes(fromX, fromY, toX, toY) > allCreatures.stream()
+                .filter(c -> c.name().equals(creature))
+                .findFirst()
+                .orElse(null)
+                .maxDistance()) {
+            return new MoveResponse(MoveResult.MOVE_ERROR, "Distance too far");
+        }
+
+        return board.moveCreature(new Coordinate(fromX, fromY), new Coordinate(toX, toY));
     }
 
     // add creature to the list
@@ -203,20 +216,16 @@ public static class Builder {
 
     // get the distance between two hexes
     // https://stackoverflow.com/questions/14491444/calculating-distance-on-a-hexagon-grid
-    private int distanceBetweenHexes(int col1, int row1, int col2, int row2) {
-        // calculate the distance between the two hexes
-        // return the distance
+    private int distanceBetweenHexes(int x1, int y1, int x2, int y2) {
+        // Convert hex to cube coordinates for the first hex
+        int z1 = -x1 - y1;
 
-        int x1 = col1;
-        int z1 = row1 - (col1 - (col1 & 1)) / 2;
-        int y1 = -x1 - z1;
+        // Convert hex to cube coordinates for the second hex
+        int z2 = -x2 - y2;
 
-        int x2 = col2;
-        int z2 = row2 - (col2 - (col2 & 1)) / 2;
-        int y2 = -x2 - z2;
-
-        // Calculate distance in cube coordinates
+        // Calculate the distance between two cubes
         return (Math.abs(x1 - x2) + Math.abs(y1 - y2) + Math.abs(z1 - z2)) / 2;
     }
+
 
 }
