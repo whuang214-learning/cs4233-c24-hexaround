@@ -69,7 +69,7 @@ public class HexAroundFirstSubmission implements IHexAround1 {
     private final Board board;
     private List<Creature> allCreatures;
     private List<Player> players;
-    private boolean turn; // if true, blue player's turn, false red player's turn
+    private PlayerName currentPlayer;
 
 
 
@@ -85,7 +85,7 @@ public class HexAroundFirstSubmission implements IHexAround1 {
         board = new Board();
         allCreatures = new ArrayList<>();
         players = new ArrayList<>();
-        turn = true; // blue always starts
+        currentPlayer = PlayerName.BLUE; // blue always starts
     }
 
     /**
@@ -173,8 +173,8 @@ public class HexAroundFirstSubmission implements IHexAround1 {
      */
     @Override
     public MoveResponse placeCreature(CreatureName creature, int x, int y) {
-        MoveResponse response = board.placeCreature(new Coordinate(x, y), creature, turn);
-        turn = !turn;
+        MoveResponse response = board.placeCreature(new Coordinate(x, y), creature, currentPlayer);
+        toggleTurn();
         return response;
     }
 
@@ -202,8 +202,8 @@ public class HexAroundFirstSubmission implements IHexAround1 {
             return new MoveResponse(MoveResult.MOVE_ERROR, "Distance too far");
         }
 
-        MoveResponse response = board.moveCreature(new Coordinate(fromX, fromY), new Coordinate(toX, toY), turn);
-        turn = !turn;
+        MoveResponse response = board.moveCreature(new Coordinate(fromX, fromY), new Coordinate(toX, toY), currentPlayer);
+        toggleTurn();
         return response;
     }
 
@@ -238,6 +238,11 @@ public class HexAroundFirstSubmission implements IHexAround1 {
         // Calculate the distance between two cubes
         return (Math.abs(x1 - x2) + Math.abs(y1 - y2) + Math.abs(z1 - z2)) / 2;
     }
+
+    private void toggleTurn() {
+        currentPlayer = (currentPlayer == PlayerName.BLUE) ? PlayerName.RED : PlayerName.BLUE;
+    }
+
 
 
 }

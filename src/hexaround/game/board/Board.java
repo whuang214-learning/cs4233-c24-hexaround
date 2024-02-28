@@ -1,6 +1,7 @@
 package hexaround.game.board;
 import hexaround.game.entities.player.Player;
 import hexaround.game.entities.creature.CreatureName;
+import hexaround.game.entities.player.PlayerName;
 
 import java.util.*;
 
@@ -25,20 +26,18 @@ public Board() {
  * If the coordinate is not occupied, it places the creature at the coordinate and returns a MoveResponse with an OK result.
  * @param coordinate The coordinate at which the creature is to be placed.
  * @param creatureName The name of the creature to be placed.
- * @param isBlue A boolean indicating whether the creature belongs to the blue player.
+ * @param currentPlayer The name of the player making the move.
  * @return A MoveResponse indicating the result of the move and an optional message.
  */
-public MoveResponse placeCreature(Coordinate coordinate, CreatureName creatureName, boolean isBlue) {
+public MoveResponse placeCreature(Coordinate coordinate, CreatureName creatureName, PlayerName currentPlayer) {
     if (hexes.containsKey(coordinate)) {
         return new MoveResponse(MoveResult.MOVE_ERROR, "Hex is already occupied");
     }
 
     if (creatureName == CreatureName.BUTTERFLY) {
-        if (isBlue) {
-            System.out.println("Blue butterfly placed at " + coordinate);
+        if (currentPlayer == PlayerName.BLUE) {
             blueButterflyCoordinate = coordinate;
-        } else {
-            System.out.println("Red butterfly placed at " + coordinate);
+        } else if (currentPlayer == PlayerName.RED){
             redButterflyCoordinate = coordinate;
         }
     }
@@ -51,12 +50,8 @@ public MoveResponse placeCreature(Coordinate coordinate, CreatureName creatureNa
     }
 
     if (isSurrounded(blueButterflyCoordinate, hexes)) {
-        System.out.println("Blue butterfly is surrounded");
-        System.out.println(blueButterflyCoordinate);
         return new MoveResponse(MoveResult.RED_WON);
     } else if (isSurrounded(redButterflyCoordinate, hexes)) {
-        System.out.println("Red butterfly is surrounded");
-        System.out.println(redButterflyCoordinate);
         return new MoveResponse(MoveResult.BLUE_WON);
     }
 
@@ -80,9 +75,10 @@ public CreatureName getCreatureAt(Coordinate coordinate) {
  * If the move is successful, it updates the board and returns a MoveResponse with an OK result.
  * @param from The coordinate from which the creature is to be moved.
  * @param to The coordinate to which the creature is to be moved.
+ * @param currentPlayer The name of the player making the move.
  * @return A MoveResponse indicating the result of the move and an optional message.
  */
-public MoveResponse moveCreature(Coordinate from, Coordinate to, boolean isBlue) {
+public MoveResponse moveCreature(Coordinate from, Coordinate to, PlayerName currentPlayer) {
     // check if there is no creature at the to coordinate
     // make a copy of the board
     // move the creature from the from coordinate to the to coordinate
@@ -119,9 +115,7 @@ private boolean isSurrounded(Coordinate coordinate, Map<Coordinate, CreatureName
     }
     // if all adjacent coordinates are occupied, return true
     List<Coordinate> adjacentCoordinates = getAdjacentCoordinates(coordinate);
-    System.out.println(adjacentCoordinates);
     for (Coordinate adjacentCoordinate : adjacentCoordinates) {
-        System.out.println(hexes.get(adjacentCoordinate));
         if (hexes.get(adjacentCoordinate) == null) {
             return false;
         }
