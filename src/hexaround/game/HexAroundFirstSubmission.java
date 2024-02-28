@@ -10,65 +10,68 @@ import java.util.*;
 
 public class HexAroundFirstSubmission implements IHexAround1 {
 
-    /**
- * This is a Builder class for HexAroundFirstSubmission.
- * It allows for the creation of a HexAroundFirstSubmission object using the Builder pattern.
- * This pattern provides a flexible and readable way to construct complex objects.
- */
-public static class Builder {
-    // The HexAroundFirstSubmission object that this builder will eventually return
-    private HexAroundFirstSubmission gameManager ;
-
-    /**
-     * The Builder constructor initializes a new HexAroundFirstSubmission object.
+        /**
+     * This is a Builder class for HexAroundFirstSubmission.
+     * It allows for the creation of a HexAroundFirstSubmission object using the Builder pattern.
+     * This pattern provides a flexible and readable way to construct complex objects.
      */
-    public Builder() {
-        gameManager  = new HexAroundFirstSubmission();
+    public static class Builder {
+        // The HexAroundFirstSubmission object that this builder will eventually return
+        private HexAroundFirstSubmission gameManager ;
+
+        /**
+         * The Builder constructor initializes a new HexAroundFirstSubmission object.
+         */
+        public Builder() {
+            gameManager  = new HexAroundFirstSubmission();
+        }
+
+        /**
+         * This method allows for the addition of creature definitions to the HexAroundFirstSubmission object.
+         * It creates a CreatureFactory with the provided definitions and adds the created creatures to the game manager.
+         * @param creatureDefinitions A collection of creature definitions to be added to the game manager.
+         * @return The Builder object, allowing for method chaining.
+         */
+        public Builder withCreatureDefinitions(Collection<CreatureDefinition> creatureDefinitions) {
+
+            CreatureFactory creatureFactory = new CreatureFactory(creatureDefinitions);
+
+            creatureDefinitions.forEach(creatureDefinition -> {
+                gameManager.addCreature(creatureFactory.createCreature(creatureDefinition.name()));
+            });
+
+            return this;
+        }
+
+        /**
+         * This method allows for the addition of player configurations to the HexAroundFirstSubmission object.
+         * It updates the players map with the player name and the list of creatures.
+         * @param playerConfigurations A collection of player configurations to be added to the game manager.
+         * @return The Builder object, allowing for method chaining.
+         */
+        public Builder withPlayerConfigurations(Collection<PlayerConfiguration> playerConfigurations) {
+
+            playerConfigurations.forEach(playerConfiguration -> {
+                gameManager.addPlayer(playerConfiguration.Player(), playerConfiguration.creatures());
+            });
+
+            return this;
+        }
+
+        /**
+         * This method completes the building process and returns the constructed HexAroundFirstSubmission object.
+         * @return The constructed HexAroundFirstSubmission object.
+         */
+        public HexAroundFirstSubmission build() {
+            return gameManager;
+        }
     }
-
-    /**
-     * This method allows for the addition of creature definitions to the HexAroundFirstSubmission object.
-     * It creates a CreatureFactory with the provided definitions and adds the created creatures to the game manager.
-     * @param creatureDefinitions A collection of creature definitions to be added to the game manager.
-     * @return The Builder object, allowing for method chaining.
-     */
-    public Builder withCreatureDefinitions(Collection<CreatureDefinition> creatureDefinitions) {
-
-        CreatureFactory creatureFactory = new CreatureFactory(creatureDefinitions);
-
-        creatureDefinitions.forEach(creatureDefinition -> {
-            gameManager.addCreature(creatureFactory.createCreature(creatureDefinition.name()));
-        });
-
-        return this;
-    }
-
-    /**
-     * This method allows for the addition of player configurations to the HexAroundFirstSubmission object.
-     * It updates the players map with the player name and the list of creatures.
-     * @param playerConfigurations A collection of player configurations to be added to the game manager.
-     * @return The Builder object, allowing for method chaining.
-     */
-    public Builder withPlayerConfigurations(Collection<PlayerConfiguration> playerConfigurations) {
-
-        playerConfigurations.forEach(playerConfiguration -> {
-            gameManager.addPlayer(playerConfiguration.Player(), playerConfiguration.creatures());
-        });
-
-        return this;
-    }
-
-    /**
-     * This method completes the building process and returns the constructed HexAroundFirstSubmission object.
-     * @return The constructed HexAroundFirstSubmission object.
-     */
-    public HexAroundFirstSubmission build() {
-        return gameManager;
-    }
-}
     private final Board board;
     private List<Creature> allCreatures;
     private List<Player> players;
+    private boolean turn; // if true, blue player's turn, false red player's turn
+
+
 
     /**
      * This is the default constructor, and the only constructor
@@ -82,6 +85,7 @@ public static class Builder {
         board = new Board();
         allCreatures = new ArrayList<>();
         players = new ArrayList<>();
+        turn = true; // blue always starts
     }
 
     /**
@@ -169,7 +173,9 @@ public static class Builder {
      */
     @Override
     public MoveResponse placeCreature(CreatureName creature, int x, int y) {
-        return board.placeCreature(new Coordinate(x, y), creature);
+        MoveResponse response = board.placeCreature(new Coordinate(x, y), creature, turn);
+        turn = !turn;
+        return response;
     }
 
     /**
@@ -192,15 +198,21 @@ public static class Builder {
             return new MoveResponse(MoveResult.MOVE_ERROR, "Wrong creature");
         }
 
-        if (distanceBetweenHexes(fromX, fromY, toX, toY) > allCreatures.stream()
-                .filter(c -> c.name().equals(creature))
-                .findFirst()
-                .orElse(null)
-                .maxDistance()) {
+        if (distanceBetweenHexes(fromX, fromY, toX, toY) > getCreature(creature).maxDistance()) {
             return new MoveResponse(MoveResult.MOVE_ERROR, "Distance too far");
         }
 
-        return board.moveCreature(new Coordinate(fromX, fromY), new Coordinate(toX, toY));
+        MoveResponse response = board.moveCreature(new Coordinate(fromX, fromY), new Coordinate(toX, toY), turn);
+        turn = !turn;
+        return response;
+    }
+
+    // get creature from its name
+    private Creature getCreature(CreatureName creatureName) {
+        return allCreatures.stream()
+                .filter(c -> c.name().equals(creatureName))
+                .findFirst()
+                .orElse(null);
     }
 
     // add creature to the list

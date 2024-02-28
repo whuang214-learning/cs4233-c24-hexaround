@@ -1,4 +1,5 @@
 package hexaround.game.board;
+import hexaround.game.entities.player.Player;
 import hexaround.game.entities.creature.CreatureName;
 
 import java.util.*;
@@ -7,6 +8,8 @@ import java.util.*;
 
 public class Board {
     private Map<Coordinate, CreatureName> hexes;
+    private Coordinate blueButterflyCoordinate;
+    private Coordinate redButterflyCoordinate;
 
 /**
  * The constructor for the Board class.
@@ -22,13 +25,41 @@ public Board() {
  * If the coordinate is not occupied, it places the creature at the coordinate and returns a MoveResponse with an OK result.
  * @param coordinate The coordinate at which the creature is to be placed.
  * @param creatureName The name of the creature to be placed.
+ * @param isBlue A boolean indicating whether the creature belongs to the blue player.
  * @return A MoveResponse indicating the result of the move and an optional message.
  */
-public MoveResponse placeCreature(Coordinate coordinate, CreatureName creatureName) {
+public MoveResponse placeCreature(Coordinate coordinate, CreatureName creatureName, boolean isBlue) {
     if (hexes.containsKey(coordinate)) {
         return new MoveResponse(MoveResult.MOVE_ERROR, "Hex is already occupied");
     }
+
+    if (creatureName == CreatureName.BUTTERFLY) {
+        if (isBlue) {
+            System.out.println("Blue butterfly placed at " + coordinate);
+            blueButterflyCoordinate = coordinate;
+        } else {
+            System.out.println("Red butterfly placed at " + coordinate);
+            redButterflyCoordinate = coordinate;
+        }
+    }
+
     hexes.put(coordinate, creatureName);
+
+    // check if the colony is connected
+    if (!isConnectedColony(coordinate, hexes)) {
+        return new MoveResponse(MoveResult.MOVE_ERROR, "Colony is not connected");
+    }
+
+    if (isSurrounded(blueButterflyCoordinate, hexes)) {
+        System.out.println("Blue butterfly is surrounded");
+        System.out.println(blueButterflyCoordinate);
+        return new MoveResponse(MoveResult.RED_WON);
+    } else if (isSurrounded(redButterflyCoordinate, hexes)) {
+        System.out.println("Red butterfly is surrounded");
+        System.out.println(redButterflyCoordinate);
+        return new MoveResponse(MoveResult.BLUE_WON);
+    }
+
     return new MoveResponse(MoveResult.OK, "Legal move");
 }
 
@@ -51,7 +82,7 @@ public CreatureName getCreatureAt(Coordinate coordinate) {
  * @param to The coordinate to which the creature is to be moved.
  * @return A MoveResponse indicating the result of the move and an optional message.
  */
-public MoveResponse moveCreature(Coordinate from, Coordinate to) {
+public MoveResponse moveCreature(Coordinate from, Coordinate to, boolean isBlue) {
     // check if there is no creature at the to coordinate
     // make a copy of the board
     // move the creature from the from coordinate to the to coordinate
@@ -65,7 +96,41 @@ public MoveResponse moveCreature(Coordinate from, Coordinate to) {
     CreatureName creatureToMove = newHexBoard.remove(from);
     newHexBoard.put(to, creatureToMove);
 
-    // go through the hexes and count the number of creatures where value != null
+    // check if the colony is connected
+    if (!isConnectedColony(to, newHexBoard)) {
+        return new MoveResponse(MoveResult.MOVE_ERROR, "Colony is not connected, try again");
+    }
+
+    // check if the butterfly is surrounded
+    if (isSurrounded(blueButterflyCoordinate, newHexBoard)) {
+        return new MoveResponse(MoveResult.RED_WON);
+    } else if (isSurrounded(redButterflyCoordinate, newHexBoard)) {
+        return new MoveResponse(MoveResult.BLUE_WON);
+    }
+
+    hexes = newHexBoard;
+    return new MoveResponse(MoveResult.OK, "Legal move");
+}
+
+// checks if coordinate is surrounded by creatures
+private boolean isSurrounded(Coordinate coordinate, Map<Coordinate, CreatureName> hexes) {
+    if (coordinate == null) {
+        return false;
+    }
+    // if all adjacent coordinates are occupied, return true
+    List<Coordinate> adjacentCoordinates = getAdjacentCoordinates(coordinate);
+    System.out.println(adjacentCoordinates);
+    for (Coordinate adjacentCoordinate : adjacentCoordinates) {
+        System.out.println(hexes.get(adjacentCoordinate));
+        if (hexes.get(adjacentCoordinate) == null) {
+            return false;
+        }
+    }
+    return true;
+}
+
+private boolean isConnectedColony(Coordinate coordinate, Map<Coordinate, CreatureName> hexes) {
+    int count = countConnectedCreatures(coordinate, hexes);
     int originalHexesCount = 0;
     for (Map.Entry<Coordinate, CreatureName> entry : hexes.entrySet()) {
         if (entry.getValue() != null) {
@@ -73,12 +138,7 @@ public MoveResponse moveCreature(Coordinate from, Coordinate to) {
         }
     }
 
-    if (countConnectedCreatures(to, newHexBoard) < originalHexesCount) {
-        return new MoveResponse(MoveResult.MOVE_ERROR, "Colony is not connected, try again");
-    }
-
-    hexes = newHexBoard;
-    return new MoveResponse(MoveResult.OK, "Legal move");
+    return count == originalHexesCount;
 }
 
 private int countConnectedCreatures(Coordinate coordinate, Map<Coordinate, CreatureName> hexes) {
@@ -104,9 +164,7 @@ private List<Coordinate> getAdjacentCoordinates(Coordinate coordinate) {
 
     for (int[] direction : directions) {
         Coordinate adjacentCoordinate = new Coordinate(coordinate.x() + direction[0], coordinate.y() + direction[1]);
-        if (hexes.get(adjacentCoordinate) != null) {
-            adjacentCoordinates.add(adjacentCoordinate);
-        }
+        adjacentCoordinates.add(adjacentCoordinate);
     }
 
     return adjacentCoordinates;

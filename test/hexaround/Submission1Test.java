@@ -188,6 +188,34 @@ public class Submission1Test {
     }
 
 
+    // test for win condition
+    @Test
+    void testSurroundedWinConditionRed() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
+        gameManager.placeCreature(BUTTERFLY, 0, 0); //blue
+        gameManager.placeCreature(GRASSHOPPER, 0, 1);
+        gameManager.placeCreature(GRASSHOPPER, 1, 0);
+        gameManager.placeCreature(GRASSHOPPER, 1, -1);
+        gameManager.placeCreature(GRASSHOPPER, 0, -1);
+        gameManager.placeCreature(GRASSHOPPER, -1, 0);
 
+        MoveResponse lastMove = gameManager.placeCreature(GRASSHOPPER, -1, 1);
+        assertEquals(MoveResult.RED_WON, lastMove.moveResult());
+    }
 
+    @Test
+    void testSurroundedWinConditionBlue() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        IHexAround1 gameManager = HexAroundGameBuilder.buildGameManager(hgcFile);
+        gameManager.placeCreature(BUTTERFLY, 0, 1); // blue
+        gameManager.placeCreature(BUTTERFLY, 0, 0); // red butter in the middle
+        gameManager.placeCreature(GRASSHOPPER, 1, 0);
+        gameManager.placeCreature(GRASSHOPPER, 1, -1);
+        gameManager.placeCreature(GRASSHOPPER, 0, -1);
+        gameManager.placeCreature(GRASSHOPPER, -1, 0);
+
+        MoveResponse lastMove = gameManager.placeCreature(GRASSHOPPER, -1, 1);
+        assertEquals(MoveResult.BLUE_WON, lastMove.moveResult());
+    }
 }
