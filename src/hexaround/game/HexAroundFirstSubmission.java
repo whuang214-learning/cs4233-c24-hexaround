@@ -174,6 +174,10 @@ public class HexAroundFirstSubmission implements IHexAround1 {
     @Override
     public MoveResponse placeCreature(CreatureName creature, int x, int y) {
         MoveResponse response = board.placeCreature(new Coordinate(x, y), creature, currentPlayer);
+        // if response error, return the response so player can try again
+        if (response.moveResult() == MoveResult.MOVE_ERROR) {
+            return response;
+        }
         toggleTurn();
         return response;
     }
@@ -203,6 +207,10 @@ public class HexAroundFirstSubmission implements IHexAround1 {
         }
 
         MoveResponse response = board.moveCreature(new Coordinate(fromX, fromY), new Coordinate(toX, toY), currentPlayer);
+        // if response error, return the response so player can try again
+        if (response.moveResult() == MoveResult.MOVE_ERROR) {
+            return response;
+        }
         toggleTurn();
         return response;
     }
