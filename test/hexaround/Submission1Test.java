@@ -5,6 +5,7 @@ import hexaround.game.board.MoveResponse;
 import hexaround.game.board.MoveResult;
 import hexaround.game.entities.creature.CreatureName;
 import hexaround.game.entities.creature.CreatureProperty;
+import hexaround.game.entities.player.PlayerName;
 import org.junit.jupiter.api.*;
 
 import javax.swing.*;
@@ -262,4 +263,46 @@ public class Submission1Test {
         MoveResponse lastMove = gameManager.moveCreature(GRASSHOPPER, -1, 2, -1, 1);
         assertEquals(MoveResult.BLUE_WON, lastMove.moveResult());
     }
+
+    // test moves and player switched correctly
+    @Test
+    void testPlayerSwitchAndMove() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        HexAroundFirstSubmission gameManager = (HexAroundFirstSubmission) HexAroundGameBuilder.buildGameManager(hgcFile);
+
+        // turn 1
+        gameManager.placeCreature(BUTTERFLY, 0, 1); // blue
+        gameManager.placeCreature(BUTTERFLY, 0, 0); // red
+
+        // turn 2
+        gameManager.placeCreature(GRASSHOPPER, 1, 0); // blue
+        gameManager.placeCreature(GRASSHOPPER, 1, -1); // red (should be blue next)
+
+        assertEquals(2, gameManager.getTurns());
+        assertEquals(PlayerName.BLUE, gameManager.getCurrentPlayer());
+    }
+
+    // test butterfly must be placed down before turn 4
+    @Test
+    void testButterflyMustBePlacedBeforeTurnFour() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        HexAroundFirstSubmission gameManager = (HexAroundFirstSubmission) HexAroundGameBuilder.buildGameManager(hgcFile);
+
+        // turn 1
+        gameManager.placeCreature(GRASSHOPPER, 0, 1); // blue
+        gameManager.placeCreature(GRASSHOPPER, 0, 0); // red
+
+        // turn 2
+        gameManager.placeCreature(GRASSHOPPER, 1, 0); // blue
+        gameManager.placeCreature(GRASSHOPPER, 1, -1); // red
+
+        // turn 3
+        gameManager.placeCreature(GRASSHOPPER, 2, -1); // blue
+        gameManager.placeCreature(GRASSHOPPER, 2, -2); // red
+
+        // turn 4
+        MoveResponse response = gameManager.placeCreature(GRASSHOPPER, 3, -2); // blue
+        assertEquals(MoveResult.MOVE_ERROR, response.moveResult());
+    }
+
 }

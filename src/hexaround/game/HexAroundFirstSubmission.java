@@ -70,6 +70,7 @@ public class HexAroundFirstSubmission implements IHexAround1 {
     private List<Creature> allCreatures;
     private List<Player> players;
     private PlayerName currentPlayer;
+    private int turns;
 
 
 
@@ -86,6 +87,7 @@ public class HexAroundFirstSubmission implements IHexAround1 {
         allCreatures = new ArrayList<>();
         players = new ArrayList<>();
         currentPlayer = PlayerName.BLUE; // blue always starts
+        turns = 0;
     }
 
     /**
@@ -248,9 +250,23 @@ public class HexAroundFirstSubmission implements IHexAround1 {
     }
 
     private void toggleTurn() {
-        currentPlayer = (currentPlayer == PlayerName.BLUE) ? PlayerName.RED : PlayerName.BLUE;
+        // if one cycle of turns is complete, increment the turn count
+        // toggle the current player
+        if (currentPlayer == PlayerName.RED) {
+            turns++;
+            currentPlayer = PlayerName.BLUE;
+        }
+        else {
+            currentPlayer = PlayerName.RED;
+        }
     }
 
+    public int getTurns() {
+        return turns;
+    }
 
+    public PlayerName getCurrentPlayer() {
+        return currentPlayer;
+    }
 
 }
