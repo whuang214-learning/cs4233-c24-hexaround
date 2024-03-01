@@ -278,13 +278,14 @@ public class Submission1Test {
         gameManager.placeCreature(GRASSHOPPER, 1, 0); // blue
         gameManager.placeCreature(GRASSHOPPER, 1, -1); // red (should be blue next)
 
-        assertEquals(2, gameManager.getTurns());
+        // next turn
+        assertEquals(3, gameManager.getTurns());
         assertEquals(PlayerName.BLUE, gameManager.getCurrentPlayer());
     }
 
-    // test butterfly must be placed down before turn 4
+    // test blue butterfly must be placed down before turn 4
     @Test
-    void testButterflyMustBePlacedBeforeTurnFour() throws IOException {
+    void testBlueButterflyMustBePlacedBeforeTurnFour() throws IOException {
         String hgcFile = "testConfigurations/FirstConfiguration.hgc";
         HexAroundFirstSubmission gameManager = (HexAroundFirstSubmission) HexAroundGameBuilder.buildGameManager(hgcFile);
 
@@ -302,6 +303,33 @@ public class Submission1Test {
 
         // turn 4
         MoveResponse response = gameManager.placeCreature(GRASSHOPPER, 3, -2); // blue
+        assertEquals(4, gameManager.getTurns());
+        assertEquals(MoveResult.MOVE_ERROR, response.moveResult());
+    }
+
+    // test red butterfly must be placed down before turn 4
+    @Test
+    void testRedButterflyMustBePlacedBeforeTurnFour() throws IOException {
+        String hgcFile = "testConfigurations/FirstConfiguration.hgc";
+        HexAroundFirstSubmission gameManager = (HexAroundFirstSubmission) HexAroundGameBuilder.buildGameManager(hgcFile);
+
+        // turn 1
+        gameManager.placeCreature(GRASSHOPPER, 0, 1); // blue
+        gameManager.placeCreature(GRASSHOPPER, 0, 0); // red
+
+        // turn 2
+        gameManager.placeCreature(GRASSHOPPER, 1, 0); // blue
+        gameManager.placeCreature(GRASSHOPPER, 1, -1); // red
+
+        // turn 3
+        gameManager.placeCreature(GRASSHOPPER, 2, -1); // blue
+        gameManager.placeCreature(GRASSHOPPER, 2, -2); // red
+
+        // turn 4
+        gameManager.placeCreature(BUTTERFLY, 3, -2); // blue
+        MoveResponse response = gameManager.placeCreature(GRASSHOPPER, 3, -3); // red
+
+        assertEquals(4, gameManager.getTurns()); // still turn 4
         assertEquals(MoveResult.MOVE_ERROR, response.moveResult());
     }
 

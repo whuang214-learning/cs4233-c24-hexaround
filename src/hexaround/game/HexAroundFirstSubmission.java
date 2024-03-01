@@ -82,12 +82,11 @@ public class HexAroundFirstSubmission implements IHexAround1 {
      * will be filled in by the builder.
      */
     private HexAroundFirstSubmission() {
-        // Nothing to do.
         board = new Board();
         allCreatures = new ArrayList<>();
         players = new ArrayList<>();
         currentPlayer = PlayerName.BLUE; // blue always starts
-        turns = 0;
+        turns = 1;
     }
 
     /**
@@ -175,6 +174,17 @@ public class HexAroundFirstSubmission implements IHexAround1 {
      */
     @Override
     public MoveResponse placeCreature(CreatureName creature, int x, int y) {
+
+        // after turn 4, depending on the current player, check if the butterfly is placed
+        if (turns > 3) {
+            if (currentPlayer == PlayerName.RED && creature != CreatureName.BUTTERFLY && !board.isRedButterflyPlaced()) {
+                return new MoveResponse(MoveResult.MOVE_ERROR, "Must place red butterfly first");
+            }
+            if (currentPlayer == PlayerName.BLUE && creature != CreatureName.BUTTERFLY && !board.isBlueButterflyPlaced()) {
+                return new MoveResponse(MoveResult.MOVE_ERROR, "Must place blue butterfly first");
+            }
+        }
+
         MoveResponse response = board.placeCreature(new Coordinate(x, y), creature, currentPlayer);
         // if response error, return the response so player can try again
         if (response.moveResult() == MoveResult.MOVE_ERROR) {
@@ -261,6 +271,7 @@ public class HexAroundFirstSubmission implements IHexAround1 {
         }
     }
 
+    // getters
     public int getTurns() {
         return turns;
     }
