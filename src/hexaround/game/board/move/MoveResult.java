@@ -9,22 +9,8 @@
  *  2) You may not remove this copyright, even if you have modified this file.
  */
 
-package hexaround.game.board;
+package hexaround.game.board.move;
 
-/**
- * This is what is returned from making a move in a game.
- * @param moveResult
- * @param message
- */
-public record MoveResponse(
-    MoveResult moveResult,
-    String message  // The message must be filled in if there is any error
-){
-    /**
-     * Shortcut that calls the default constructor with a null message.
-     * @param moveResult
-     */
-    public MoveResponse(MoveResult moveResult) {
-        this(moveResult, null);
-    }
+public enum MoveResult {
+    OK, RED_WON, BLUE_WON, DRAW, MOVE_ERROR
 }

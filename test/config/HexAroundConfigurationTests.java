@@ -16,9 +16,6 @@
 package config;
 
 import hexaround.config.*;
-import hexaround.game.HexAroundFirstSubmission;
-import hexaround.game.HexAroundGameBuilder;
-import hexaround.game.IHexAround1;
 import org.junit.jupiter.api.*;
 
 import java.io.*;

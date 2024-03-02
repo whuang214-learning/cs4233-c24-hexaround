@@ -18,24 +18,28 @@
 
 package hexaround.game;
 
-import hexaround.config.*;
+import hexaround.config.GameConfiguration;
+import hexaround.config.HexAroundConfigurationMaker;
+import hexaround.game.board.Board;
 
-import java.io.*;
+import java.io.IOException;
 
 public class HexAroundGameBuilder {
+    /**
+     * Create an instance of a HexAround game.
+     * @param configurationFile The game configuration.
+     * @return The game manager.
+     * @throws IOException If file is not found.
+     */
     public static IHexAround1 buildGameManager(String configurationFile) throws IOException {
         HexAroundConfigurationMaker configurationMaker =
             new HexAroundConfigurationMaker(configurationFile);
         GameConfiguration configuration = configurationMaker.makeConfiguration();
+        HexAroundFirstSubmission gameManager = new HexAroundFirstSubmission();
 
-        // TODO: Use the configuration to build your game manager
-        // Make the code readable and use helper methods as needed.
-        // Add setters and getters to the game manager that the builder calls.
-        IHexAround1 gameManager = new HexAroundFirstSubmission.Builder()
-                .withCreatureDefinitions(configuration.creatures())
-                .withPlayerConfigurations(configuration.players())
-                .build();
-
+        gameManager.setBoard(new Board());
+        gameManager.makeCreatureDefinitions(configuration.creatures());
+        gameManager.makePlayerInventories(configuration.players());
 
         return gameManager;
     }

@@ -1,177 +1,239 @@
+/*
+ * Copyright (c) 2023. Gary F. Pollice
+ *
+ * This files was developed for personal or educational purposes. All rights reserved.
+ *
+ *  You may use this software for any purpose except as follows:
+ *  1) You may not submit this file without modification for any educational assignment
+ *      unless it was provided to you as part of starting code that does not require modification.
+ *  2) You may not remove this copyright, even if you have modified this file.
+ */
+
 package hexaround.game.board;
-import hexaround.game.entities.player.Player;
+
+import hexaround.game.board.coordinate.Coordinate;
+import hexaround.game.board.tile.CreatureTile;
 import hexaround.game.entities.creature.CreatureName;
-import hexaround.game.entities.player.PlayerName;
 
 import java.util.*;
 
+import static hexaround.game.board.coordinate.Coordinate.makeCoordinate;
 
-
+/**
+ * This class manages the game board. It provides all information about the board,
+ * the state of the board, and other things that the board knows about.
+ * The board is assumed to be infinite.
+ */
 public class Board {
-    private Map<Coordinate, CreatureName> hexes;
-    private Coordinate blueButterflyCoordinate;
-    private Coordinate redButterflyCoordinate;
+    private Map<Coordinate, LinkedList<CreatureTile>> hexes = null;
+    private Coordinate blueButterflyCoord = null;
+    private Coordinate redButterflyCord = null;
 
-    /**
-     * The constructor for the Board class.
-     * It initializes the hexes map which will store the coordinates of the hexes and the names of the creatures occupying them.
-     */
     public Board() {
-        hexes = new HashMap<>();
+        this.hexes = new HashMap<>();
     }
 
     /**
-     * This method allows a creature to be placed on the board at a specified coordinate.
-     * If the coordinate is already occupied, it returns a MoveResponse with a MOVE_ERROR result and a message indicating that the hex is already occupied.
-     * If the coordinate is not occupied, it places the creature at the coordinate and returns a MoveResponse with an OK result.
-     * @param coordinate The coordinate at which the creature is to be placed.
-     * @param creatureName The name of the creature to be placed.
-     * @param currentPlayer The name of the player making the move.
-     * @return A MoveResponse indicating the result of the move and an optional message.
+     * Retrieves the creature at a specific position in the list of creatures at a given coordinate.
+     *
+     * @param coord The coordinate of the tile.
+     * @param index The position in the list of creatures at the tile.
+     * @return The creature at the specified position in the list of creatures at the tile, or null if the index is out of bounds.
      */
-    public MoveResponse placeCreature(Coordinate coordinate, CreatureName creatureName, PlayerName currentPlayer) {
-        if (hexes.containsKey(coordinate)) {
-            return new MoveResponse(MoveResult.MOVE_ERROR, "Hex is already occupied");
+    public CreatureName getCreatureAt(Coordinate coord, int index) {
+        LinkedList<CreatureTile> creatures = this.hexes.getOrDefault(coord, new LinkedList<>());
+
+        if(index >= creatures.size()) {
+            return null;
         }
 
-        if (creatureName == CreatureName.BUTTERFLY) {
-            if (currentPlayer == PlayerName.BLUE) {
-                blueButterflyCoordinate = coordinate;
-            } else if (currentPlayer == PlayerName.RED){
-                redButterflyCoordinate = coordinate;
-            }
-        }
-
-        hexes.put(coordinate, creatureName);
-
-        // check if the colony is connected
-        if (!isConnectedColony(coordinate, hexes)) {
-            return new MoveResponse(MoveResult.MOVE_ERROR, "Colony is not connected");
-        }
-
-        if (isSurrounded(blueButterflyCoordinate, hexes)) {
-            return new MoveResponse(MoveResult.RED_WON);
-        } else if (isSurrounded(redButterflyCoordinate, hexes)) {
-            return new MoveResponse(MoveResult.BLUE_WON);
-        }
-
-        return new MoveResponse(MoveResult.OK, "Legal move");
+        return creatures.get(index).creature();
     }
 
     /**
-     * This method retrieves the name of the creature occupying a specified coordinate on the board.
-     * If no creature is occupying the coordinate, it returns null.
-     * @param coordinate The coordinate from which to retrieve the creature.
-     * @return The name of the creature occupying the coordinate, or null if no creature is present.
+     * Get the butterfly tile for the given team.
+     * @param team The team whose butterfly should be retrieved.
+     * @return The coordinate of the butterfly tile for the given team.
      */
-    public CreatureName getCreatureAt(Coordinate coordinate) {
-        return hexes.get(coordinate);
+    public Coordinate getButterflyTile(boolean team) {
+        return team ? this.blueButterflyCoord : this.redButterflyCord;
+    }
+
+
+    /**
+     * Clears the butterfly tile for the given team.
+     *
+     * @param team If true, the blue butterfly tile is cleared. If false, the red butterfly tile is cleared.
+     */
+    public void removeButterfly(boolean team) {
+        if (team) {
+            this.blueButterflyCoord = null;
+        } else {
+            this.redButterflyCord = null;
+        }
     }
 
     /**
-     * This method moves a creature from one coordinate to another on the board.
-     * If the destination coordinate is already occupied, it returns a MoveResponse with a MOVE_ERROR result and a message indicating that the hex is already occupied.
-     * If the move would result in a disconnected colony, it returns a MoveResponse with a MOVE_ERROR result and a message indicating that the colony is not connected.
-     * If the move is successful, it updates the board and returns a MoveResponse with an OK result.
-     * @param from The coordinate from which the creature is to be moved.
-     * @param to The coordinate to which the creature is to be moved.
-     * @param currentPlayer The name of the player making the move.
-     * @return A MoveResponse indicating the result of the move and an optional message.
+     * Retrieves all creatures at a given coordinate.
+     *
+     * @param coord The coordinate of the tile.
+     * @return A list of creatures at the specified coordinate. If no creatures are present, an empty list is returned.
      */
-    public MoveResponse moveCreature(Coordinate from, Coordinate to, PlayerName currentPlayer) {
-        // check if there is no creature at the to coordinate
-        // make a copy of the board
-        // move the creature from the from coordinate to the to coordinate
-        // run a DFS method to count all creatures that are connected to the to coordinate
-        // if the count is less than the number of creatures on the board, return a MOVE_ERROR response
-
-        if (getCreatureAt(to) != null) {
-            return new MoveResponse(MoveResult.MOVE_ERROR, "Hex is already occupied");
-        }
-        Map<Coordinate, CreatureName> newHexBoard = new HashMap<>(hexes);
-        CreatureName creatureToMove = newHexBoard.remove(from);
-        newHexBoard.put(to, creatureToMove);
-
-        // check if the colony is connected
-        if (!isConnectedColony(to, newHexBoard)) {
-            return new MoveResponse(MoveResult.MOVE_ERROR, "Colony is not connected, try again");
-        }
-
-        // check if the butterfly is surrounded
-        if (isSurrounded(blueButterflyCoordinate, newHexBoard)) {
-            return new MoveResponse(MoveResult.RED_WON);
-        } else if (isSurrounded(redButterflyCoordinate, newHexBoard)) {
-            return new MoveResponse(MoveResult.BLUE_WON);
-        }
-
-        hexes = newHexBoard;
-        return new MoveResponse(MoveResult.OK, "Legal move");
+    public LinkedList<CreatureTile> getCreaturesAt(Coordinate coord) {
+        return new LinkedList<>(this.hexes.getOrDefault(coord, new LinkedList<>()));
     }
 
-    // checks if coordinate is surrounded by creatures
-    private boolean isSurrounded(Coordinate coordinate, Map<Coordinate, CreatureName> hexes) {
-        if (coordinate == null) {
-            return false;
+
+    /**
+     * Checks if a given tile is occupied by at least one creature.
+     *
+     * @param x The x coordinate of the tile.
+     * @param y The y coordinate of the tile.
+     * @return True if the tile is occupied, false otherwise.
+     */
+    public boolean isOccupied(int x, int y) {
+        Coordinate coord = makeCoordinate(x, y);
+
+        return this.hexes.containsKey(coord) && !this.hexes.get(coord).isEmpty();
+    }
+
+    /**
+     * Checks if a given tile is fully occupied by two creatures.
+     *
+     * @param x The x coordinate of the tile.
+     * @param y The y coordinate of the tile.
+     * @return True if the tile is fully occupied, false otherwise.
+     */
+    public boolean isOccupiedByTwo(int x, int y) {
+        return this.hexes.getOrDefault(makeCoordinate(x, y), new LinkedList<>()).size() == 2;
+    }
+
+    /**
+     * Determines if a given tile has at least one occupied neighboring tile.
+     *
+     * @param x The x coordinate of the tile.
+     * @param y The y coordinate of the tile.
+     * @return True if there is at least one occupied neighboring tile, false otherwise.
+     */
+    public boolean hasNeighbors(int x, int y) {
+        return makeCoordinate(x, y).returnAdjacentCoordinates().stream()
+                .anyMatch(neighbor -> this.isOccupied(neighbor.x(), neighbor.y()));
+    }
+
+    /**
+     * Determines if any neighboring tiles of a given tile contain a creature from a specified team.
+     *
+     * @param x The x coordinate of the tile.
+     * @param y The y coordinate of the tile.
+     * @param team The team to check for. If true, checks for the presence of a blue team creature. If false, checks for a red team creature.
+     * @return True if at least one neighboring tile contains a creature from the specified team, false otherwise.
+     */
+    public boolean isAdjCoordSameTeam(int x, int y, boolean team) {
+        return makeCoordinate(x, y).returnAdjacentCoordinates().stream()
+                .filter(this.hexes::containsKey)
+                .flatMap(neighbor -> this.hexes.get(neighbor).stream())
+                .anyMatch(piece -> piece.team() == team);
+    }
+
+    /**
+     * Determines if a given tile is connected to the rest of the colony.
+     *
+     * @return True if the tile is connected to the rest of the colony, false otherwise.
+     */
+    public boolean isConnected() {
+        Coordinate firstHex = this.hexes.keySet().iterator().next();
+        return this.getConnectedCreatures(firstHex, new HashSet<>()) == this.hexes.size();
+    }
+
+    // returns the size of the cluster that contains the given hex
+    private int getConnectedCreatures(Coordinate coord, HashSet<Coordinate> seen) {
+        if (!this.hexes.containsKey(coord) || seen.contains(coord)) {
+            return 0;
         }
-        // if all adjacent coordinates are occupied, return true
-        List<Coordinate> adjacentCoordinates = getAdjacentCoordinates(coordinate);
-        for (Coordinate adjacentCoordinate : adjacentCoordinates) {
-            if (hexes.get(adjacentCoordinate) == null) {
-                return false;
+        seen.add(coord);
+
+        return 1 + coord.returnAdjacentCoordinates().stream()
+                .mapToInt(neighbor -> getConnectedCreatures(neighbor, seen))
+                .sum();
+    }
+
+    /**
+     * Places a creature at the specified coordinates on the board.
+     *
+     * @param creature The type of creature to be placed.
+     * @param team The team the creature belongs to. (true for blue, false for red)
+     * @param x The x coordinate where the creature will be placed.
+     * @param y The y coordinate where the creature will be placed.
+     */
+    public void placeCreatureAt(CreatureName creature, boolean team, int x, int y) {
+        Coordinate hex = makeCoordinate(x, y);
+        int index = this.hexes.containsKey(hex) ? this.hexes.get(hex).size() : 0;
+        this.placeCreatureAt(creature, team, x, y, index);
+    }
+
+
+    /**
+     * Places a creature at the specified coordinates on the board at specified index.
+     *
+     * @param creature The type of creature to be placed.
+     * @param team The team the creature belongs to. (true for blue, false for red)
+     * @param x The x coordinate where the creature will be placed.
+     * @param y The y coordinate where the creature will be placed.
+     * @param index The position in the list of creatures at the tile where the creature will be placed.
+     */
+    public void placeCreatureAt(CreatureName creature, boolean team, int x, int y, int index) {
+        Coordinate hex = makeCoordinate(x, y);
+        LinkedList<CreatureTile> pieces = this.hexes.computeIfAbsent(hex, k -> new LinkedList<>());
+
+        if(index >= 0 && index <= pieces.size()) {
+            pieces.add(index, new CreatureTile(creature, team));
+        } else {
+            pieces.add(new CreatureTile(creature, team));
+        }
+
+        if(creature.equals(CreatureName.BUTTERFLY)) {
+            if (team) {
+                this.blueButterflyCoord = hex;
+            } else {
+                this.redButterflyCord = hex;
             }
         }
-        return true;
     }
 
-    private boolean isConnectedColony(Coordinate coordinate, Map<Coordinate, CreatureName> hexes) {
-        int count = countConnectedCreatures(coordinate, hexes);
-        int originalHexesCount = 0;
-        for (Map.Entry<Coordinate, CreatureName> entry : hexes.entrySet()) {
-            if (entry.getValue() != null) {
-                originalHexesCount++;
-            }
+    /**
+     * Removes a creature from a specified coordinate on the board.
+     *
+     * @param creature The type of creature to be removed.
+     * @param team The team the creature belongs to. If true, the creature belongs to the blue team. If false, the creature belongs to the red team.
+     * @param x The x coordinate from where the creature will be removed.
+     * @param y The y coordinate from where the creature will be removed.
+     * @return The position (index) of the creature at its hex after removal. If the creature was the only one at the hex, the method returns 0.
+     */
+    public int removeCreature(CreatureName creature, boolean team, int x, int y) {
+        Coordinate hex = makeCoordinate(x, y);
+        LinkedList<CreatureTile> pieces = this.hexes.get(hex);
+
+        if(pieces.size() == 1) {
+            this.hexes.remove(hex);
+            return 0;
         }
 
-        return count == originalHexesCount;
-    }
+        CreatureTile creatureToRemove = new CreatureTile(creature, team);
+        pieces.remove(creatureToRemove);
 
-    private int countConnectedCreatures(Coordinate coordinate, Map<Coordinate, CreatureName> hexes) {
-        Set<Coordinate> visited = new HashSet<>();
-        return dfs(coordinate, hexes, visited);
-    }
-
-    private int dfs(Coordinate coordinate, Map<Coordinate, CreatureName> hexes, Set<Coordinate> visited) {
-        visited.add(coordinate);
-        int count = 1;
-        List<Coordinate> adjacentCoordinates = getAdjacentCoordinates(coordinate);
-        for (Coordinate adjacentCoordinate : adjacentCoordinates) {
-            if (hexes.get(adjacentCoordinate) != null && !visited.contains(adjacentCoordinate)) {
-                count += dfs(adjacentCoordinate, hexes, visited);
-            }
-        }
-        return count;
-    }
-
-    private List<Coordinate> getAdjacentCoordinates(Coordinate coordinate) {
-        List<Coordinate> adjacentCoordinates = new ArrayList<>();
-        int[][] directions = {{0, 1}, {1, 0}, {-1, 1}, {1, -1}, {0, -1}, {-1, 0}};
-
-        for (int[] direction : directions) {
-            Coordinate adjacentCoordinate = new Coordinate(coordinate.x() + direction[0], coordinate.y() + direction[1]);
-            adjacentCoordinates.add(adjacentCoordinate);
-        }
-
-        return adjacentCoordinates;
-    }
-
-    // getters and setters
-    public boolean isBlueButterflyPlaced() {
-        return blueButterflyCoordinate != null;
-    }
-
-    public boolean isRedButterflyPlaced() {
-        return redButterflyCoordinate != null;
+        return pieces.indexOf(creatureToRemove);
     }
 
 
+    /**
+     * Determines if a given tile is surrounded by occupied tiles.
+     *
+     * @param x The x coordinate of the tile.
+     * @param y The y coordinate of the tile.
+     * @return True if all neighboring tiles are occupied, false otherwise.
+     */
+    public boolean isSurrounded(int x, int y) {
+        return makeCoordinate(x, y).returnAdjacentCoordinates().stream()
+                .allMatch(neighbor -> this.isOccupied(neighbor.x(), neighbor.y()));
+    }
 }
