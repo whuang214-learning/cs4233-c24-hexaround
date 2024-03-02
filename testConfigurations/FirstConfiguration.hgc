@@ -8,3 +8,6 @@ PLAYERS:
 	RED
 		butterfly 1,
 		grasshopper 5
+	BLUE
+	    grasshopper 1,
+        butterfly 5
